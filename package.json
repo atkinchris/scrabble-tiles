@@ -1,0 +1,16 @@
+{
+  "main": "index.js",
+  "scripts": {
+    "watch": "nodemon --watch index.js --exec \"node .\""
+  },
+  "prettier": {
+    "printWidth": 120,
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "es5",
+    "arrowParens": "avoid"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  }
+}
