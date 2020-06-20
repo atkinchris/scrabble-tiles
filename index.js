@@ -3,7 +3,7 @@ const rawWords = require('./words.json')
 const { start } = require('repl')
 
 // Convert all words to uppercase, like Scrabble tiles
-const words = rawWords.map((word) => word.toUpperCase())
+const words = rawWords.map(word => word.toUpperCase())
 
 // Remove the first word in the list, as the starting word in the middle
 const startingWord = words.shift()
@@ -14,12 +14,12 @@ words.sort((a, b) => b.length - a.length)
 // Create an empty array to hold the grid
 const grid = []
 
-// Set the width to be the number of all the letters in all words
-const width = rawWords.reduce((sum, word) => sum + word.length, 0)
+// Set the width to be the number of all the letters in all words, scaled
+const width = Math.floor(rawWords.reduce((sum, word) => sum + word.length, 0) * 0.25)
 
 // Create helper functions for moving between 2d and 1d coordinates
 const getIndex = (x, y) => y * width + x
-const getCoords = (index) => ({
+const getCoords = index => ({
   x: index % width,
   y: Math.floor(index / width),
 })
@@ -31,19 +31,17 @@ startingWord.split('').forEach((letter, letterIndex) => {
 })
 
 // Get all indexes of a letter in the grid
-const getAllOccurances = (letter) =>
+const getAllOccurances = letter =>
   grid.reduce((indexes, gridLetter, gridIndex) => {
     if (gridLetter === letter) indexes.push(gridIndex)
     return indexes
   }, [])
 
 // Find all intersections of a each letter in a word in the grid
-const findIntersections = (word) =>
+const findIntersections = word =>
   word.split('').reduce((out, letter, letterIndex) => {
     const indexes = getAllOccurances(letter)
-    return out.concat(
-      indexes.map((gridIndex) => ({ ...getCoords(gridIndex), letterIndex }))
-    )
+    return out.concat(indexes.map(gridIndex => ({ ...getCoords(gridIndex), letterIndex })))
   }, [])
 
 // Perform a single iteration for the next word in the words list
@@ -72,7 +70,7 @@ const iterate = () => {
     })
 
     // if every cell in the row is valid, write the letters to the grid, and return
-    if (columnCells.every((cell) => cell.isValid)) {
+    if (columnCells.every(cell => cell.isValid)) {
       columnCells.forEach(({ x, y, letter }) => {
         grid[getIndex(x, y)] = letter
       })
@@ -84,7 +82,7 @@ const iterate = () => {
       const x = intersection.x - intersection.letterIndex + i
       const y = intersection.y
       const gridElement = grid[getIndex(x, y)]
-      const isInvalid = (gridElement && gridElement !== letter) || false
+      const isInvalid = (gridElement && gridElement !== letter) || (i === 0 && grid[getIndex(x - 1, y)] !== undefined)
 
       return {
         x,
@@ -95,7 +93,7 @@ const iterate = () => {
     })
 
     // if every cell in the column is valid, write the letters to the grid, and return
-    if (rowCells.every((cell) => cell.isValid)) {
+    if (rowCells.every(cell => cell.isValid)) {
       rowCells.forEach(({ x, y, letter }) => {
         grid[getIndex(x, y)] = letter
       })
