@@ -1,6 +1,6 @@
 const fs = require('fs')
+
 const rawWords = require('./words.json')
-const { start } = require('repl')
 
 // Convert all words to uppercase, like Scrabble tiles
 const words = rawWords.map(word => word.toUpperCase())
@@ -63,10 +63,16 @@ const iterate = () => {
       const x = intersection.x
       const y = intersection.y - intersection.letterIndex + i
       const gridElement = grid[getIndex(x, y)]
+
+      // It is an invalid cell if...
       const isInvalid =
-        (gridElement && gridElement !== letter) ||
+        // the grid element is not empty, and it's not the same as the target letter
+        (gridElement !== undefined && gridElement !== letter) ||
+        // it's the first character in the word, and the cell above is not empty
         (i === 0 && grid[getIndex(x, y - 1)] !== undefined) ||
+        // it's not the intersecting cell, and the cell to the left is not empty
         (y !== intersection.y && grid[getIndex(x - 1, y)] !== undefined) ||
+        // it's not the intersecting cell, and the cell to the right is not empty
         (y !== intersection.y && grid[getIndex(x + 1, y)] !== undefined)
 
       return {
@@ -90,10 +96,16 @@ const iterate = () => {
       const x = intersection.x - intersection.letterIndex + i
       const y = intersection.y
       const gridElement = grid[getIndex(x, y)]
+
+      // It is an invalid cell if...
       const isInvalid =
+        // the grid element is not empty, and it's not the same as the target letter
         (gridElement && gridElement !== letter) ||
+        // it's the first character in the word, and the cell to the left is not empty
         (i === 0 && grid[getIndex(x - 1, y)] !== undefined) ||
+        // it's not the intersecting cell, and the cell above is not empty
         (x !== intersection.x && grid[getIndex(x, y - 1)] !== undefined) ||
+        // it's not the intersecting cell, and the cell below is not empty
         (x !== intersection.x && grid[getIndex(x, y + 1)] !== undefined)
 
       return {
