@@ -138,7 +138,7 @@ const iterate = () => {
 }
 
 // Iterate until all the words are placed, or the limit is reached
-let iterationLimit = 1000
+let iterationLimit = 10000
 while (words.length > 0) {
   iterate()
   iterationLimit -= 1
@@ -151,11 +151,34 @@ while (words.length > 0) {
 // Function to write the grid to SVG
 const writeGridToSVG = () => {
   const tileSize = 16
+
+  const cells = grid.reduce((out, letter, index) => {
+    if (letter !== undefined) {
+      out.push({
+        ...getCoords(index),
+        letter,
+      })
+    }
+
+    return out
+  }, [])
+
+  const minX = Math.min(...cells.map(cell => cell.x))
+  const maxX = Math.max(...cells.map(cell => cell.x))
+  const minY = Math.min(...cells.map(cell => cell.y))
+  const maxY = Math.max(...cells.map(cell => cell.y))
+
+  console.log(cells, minX, maxX, minY, maxY)
+
   let svg = `
     <svg
     xmlns="http://www.w3.org/2000/svg"
-    viewbox="0 0 ${width * tileSize} ${width * tileSize}"
-    >
+    viewBox="${[
+      minX * tileSize,
+      minY * tileSize,
+      (maxX - minX + 1) * tileSize,
+      (maxY - minY + 1) * tileSize,
+    ].join(' ')}">
     <style>
       .cell__text {
         font-size: ${tileSize - 2}px;
@@ -163,9 +186,7 @@ const writeGridToSVG = () => {
       }
     </style>`
 
-  grid.forEach((letter, index) => {
-    if (!letter) return
-    const { x, y } = getCoords(index)
+  cells.forEach(({ x, y, letter }) => {
     svg += `
       <svg
         x="${x * tileSize}"
