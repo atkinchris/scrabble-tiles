@@ -150,7 +150,7 @@ const writeGridToSVG = () => {
     .join(' ')
 
   fs.writeFileSync(
-    './output.html',
+    './index.html',
     `<!DOCTYPE html><html><style>.cell__text{${style}}</style><body>${svg}</body></html>`
   )
 }
