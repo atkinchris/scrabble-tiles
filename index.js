@@ -63,7 +63,11 @@ const iterate = () => {
       const x = intersection.x
       const y = intersection.y - intersection.letterIndex + i
       const gridElement = grid[getIndex(x, y)]
-      const isInvalid = (gridElement && gridElement !== letter) || false
+      const isInvalid =
+        (gridElement && gridElement !== letter) ||
+        (i === 0 && grid[getIndex(x, y - 1)] !== undefined) ||
+        (y !== intersection.y && grid[getIndex(x - 1, y)] !== undefined) ||
+        (y !== intersection.y && grid[getIndex(x + 1, y)] !== undefined)
 
       return {
         x,
@@ -88,7 +92,9 @@ const iterate = () => {
       const gridElement = grid[getIndex(x, y)]
       const isInvalid =
         (gridElement && gridElement !== letter) ||
-        (i === 0 && grid[getIndex(x - 1, y)] !== undefined)
+        (i === 0 && grid[getIndex(x - 1, y)] !== undefined) ||
+        (x !== intersection.x && grid[getIndex(x, y - 1)] !== undefined) ||
+        (x !== intersection.x && grid[getIndex(x, y + 1)] !== undefined)
 
       return {
         x,
