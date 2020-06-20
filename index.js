@@ -1,7 +1,4 @@
-const fs = require('fs')
-const shuffle = require('knuth-shuffle').knuthShuffle
-
-require('./words')
+const { shuffle, rawWords } = window
 
 // Convert all words to uppercase, like Scrabble tiles
 const words = rawWords.map(word => word.toUpperCase())
@@ -138,7 +135,7 @@ const iterate = () => {
 }
 
 // Iterate until all the words are placed, or the limit is reached
-let iterationLimit = 10000
+let iterationLimit = 1000 + words.length
 while (words.length > 0) {
   iterate()
   iterationLimit -= 1
@@ -167,8 +164,6 @@ const writeGridToSVG = () => {
   const maxX = Math.max(...cells.map(cell => cell.x))
   const minY = Math.min(...cells.map(cell => cell.y))
   const maxY = Math.max(...cells.map(cell => cell.y))
-
-  console.log(cells, minX, maxX, minY, maxY)
 
   let svg = `
     <svg
@@ -210,7 +205,7 @@ const writeGridToSVG = () => {
 
   svg += '</svg>'
 
-  fs.writeFileSync('./output.svg', svg)
+  document.getElementById('board').innerHTML = svg
 }
 
 writeGridToSVG()
