@@ -12,5 +12,8 @@
   },
   "devDependencies": {
     "nodemon": "^2.0.4"
+  },
+  "dependencies": {
+    "knuth-shuffle": "^1.0.8"
   }
 }

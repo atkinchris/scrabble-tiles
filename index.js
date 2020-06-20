@@ -1,4 +1,5 @@
 const fs = require('fs')
+const shuffle = require('knuth-shuffle').knuthShuffle
 
 const rawWords = require('./words.json')
 
@@ -16,7 +17,7 @@ const grid = []
 
 // Set the width to be the number of all the letters in all words, scaled
 const width = Math.floor(
-  rawWords.reduce((sum, word) => sum + word.length, 0) * 0.5
+  rawWords.reduce((sum, word) => sum + word.length, 0) / 3
 )
 
 // Create helper functions for moving between 2d and 1d coordinates
@@ -56,6 +57,9 @@ const iterate = () => {
   // Find all the intersections between each letter in the word and the existing words on the grid
   const intersections = findIntersections(word)
 
+  // Shuffle the intersections
+  shuffle(intersections)
+
   // For each intersection, check for horizontal and vertical collisions
   for (const intersection of intersections) {
     // Find all the cells if the word is used vertically
@@ -70,6 +74,8 @@ const iterate = () => {
         (gridElement !== undefined && gridElement !== letter) ||
         // it's the first character in the word, and the cell above is not empty
         (i === 0 && grid[getIndex(x, y - 1)] !== undefined) ||
+        // it's the last character in the word, and the cell below is not empty
+        (i === word.length - 1 && grid[getIndex(x, y + 1)] !== undefined) ||
         // it's not the intersecting cell, and the cell to the left is not empty
         (y !== intersection.y && grid[getIndex(x - 1, y)] !== undefined) ||
         // it's not the intersecting cell, and the cell to the right is not empty
@@ -103,6 +109,8 @@ const iterate = () => {
         (gridElement && gridElement !== letter) ||
         // it's the first character in the word, and the cell to the left is not empty
         (i === 0 && grid[getIndex(x - 1, y)] !== undefined) ||
+        // it's the last character in the word, and the cell to the right is not empty
+        (i === word.length - 1 && grid[getIndex(x + 1, y)] !== undefined) ||
         // it's not the intersecting cell, and the cell above is not empty
         (x !== intersection.x && grid[getIndex(x, y - 1)] !== undefined) ||
         // it's not the intersecting cell, and the cell below is not empty
@@ -142,7 +150,7 @@ while (words.length > 0) {
 
 // Function to write the grid to SVG
 const writeGridToSVG = () => {
-  const tileSize = 10
+  const tileSize = 16
   let svg = `
     <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -150,7 +158,7 @@ const writeGridToSVG = () => {
     >
     <style>
       .cell__text {
-        font-size: ${tileSize}px;
+        font-size: ${tileSize - 2}px;
         fill: white;
       }
     </style>`
@@ -159,17 +167,23 @@ const writeGridToSVG = () => {
     if (!letter) return
     const { x, y } = getCoords(index)
     svg += `
-      <g transform="translate(${x * tileSize}, ${y * tileSize})">
-        <rect x="0" y="0" width="${tileSize}" height="${tileSize}" />
+      <svg
+        x="${x * tileSize}"
+        y="${y * tileSize}"
+        width="${tileSize}"
+        height="${tileSize}"
+        >
+        <rect x="0" y="0" width="100%" height="100%" />
         <text
-          x="0"
-          y="${tileSize / 2}"
-          alignment-baseline="center"
+          x="50%"
+          y="50%"
+          dominant-baseline="middle"
+          text-anchor="middle"
           class="cell__text"
         >
           ${letter}
         </text>
-      </g>
+      </svg>
     `
   })
 
