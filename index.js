@@ -15,7 +15,9 @@ words.sort((a, b) => b.length - a.length)
 const grid = []
 
 // Set the width to be the number of all the letters in all words, scaled
-const width = Math.floor(rawWords.reduce((sum, word) => sum + word.length, 0) * 0.25)
+const width = Math.floor(
+  rawWords.reduce((sum, word) => sum + word.length, 0) * 0.25
+)
 
 // Create helper functions for moving between 2d and 1d coordinates
 const getIndex = (x, y) => y * width + x
@@ -41,7 +43,9 @@ const getAllOccurances = letter =>
 const findIntersections = word =>
   word.split('').reduce((out, letter, letterIndex) => {
     const indexes = getAllOccurances(letter)
-    return out.concat(indexes.map(gridIndex => ({ ...getCoords(gridIndex), letterIndex })))
+    return out.concat(
+      indexes.map(gridIndex => ({ ...getCoords(gridIndex), letterIndex }))
+    )
   }, [])
 
 // Perform a single iteration for the next word in the words list
@@ -82,7 +86,9 @@ const iterate = () => {
       const x = intersection.x - intersection.letterIndex + i
       const y = intersection.y
       const gridElement = grid[getIndex(x, y)]
-      const isInvalid = (gridElement && gridElement !== letter) || (i === 0 && grid[getIndex(x - 1, y)] !== undefined)
+      const isInvalid =
+        (gridElement && gridElement !== letter) ||
+        (i === 0 && grid[getIndex(x - 1, y)] !== undefined)
 
       return {
         x,
