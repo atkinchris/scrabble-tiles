@@ -46,25 +46,21 @@ const findIntersections = (word) =>
     )
   }, [])
 
-// Perform a single iteration for the next word in the words queue
+// Perform a single iteration for the next word in the words list
 const iterate = () => {
+  // Get the next word of the words list
   const word = words.shift()
+
+  // Find all the intersections between each letter in the word and the existing words on the grid
   const intersections = findIntersections(word)
 
-  const failure = () => {
-    words.push(word)
-  }
-
-  if (intersections.length === 0) {
-    return failure()
-  }
-
+  // For each intersection, check for horizontal and vertical collisions
   for (const intersection of intersections) {
+    // Find all the cells if the word is used vertically
     const columnCells = word.split('').map((letter, i) => {
       const x = intersection.x
       const y = intersection.y - intersection.letterIndex + i
       const gridElement = grid[getIndex(x, y)]
-
       const isInvalid = (gridElement && gridElement !== letter) || false
 
       return {
@@ -75,6 +71,7 @@ const iterate = () => {
       }
     })
 
+    // if every cell in the row is valid, write the letters to the grid, and return
     if (columnCells.every((cell) => cell.isValid)) {
       columnCells.forEach(({ x, y, letter }) => {
         grid[getIndex(x, y)] = letter
@@ -82,19 +79,22 @@ const iterate = () => {
       return
     }
 
+    // Find all the cells if the word is used horizontally
     const rowCells = word.split('').map((letter, i) => {
       const x = intersection.x - intersection.letterIndex + i
       const y = intersection.y
       const gridElement = grid[getIndex(x, y)]
+      const isInvalid = (gridElement && gridElement !== letter) || false
 
       return {
         x,
         y,
         letter,
-        isValid: !(gridElement && gridElement !== letter),
+        isValid: !isInvalid,
       }
     })
 
+    // if every cell in the column is valid, write the letters to the grid, and return
     if (rowCells.every((cell) => cell.isValid)) {
       rowCells.forEach(({ x, y, letter }) => {
         grid[getIndex(x, y)] = letter
@@ -103,7 +103,8 @@ const iterate = () => {
     }
   }
 
-  return failure()
+  // If we got here, the word didn't fit into the grid at the moment, put it back into the word list
+  words.push(word)
 }
 
 // Iterate until all the words are placed, or the limit is reached
