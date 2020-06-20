@@ -1,7 +1,7 @@
 const fs = require('fs')
 const shuffle = require('knuth-shuffle').knuthShuffle
 
-const rawWords = require('./words.json')
+require('./words')
 
 // Convert all words to uppercase, like Scrabble tiles
 const words = rawWords.map(word => word.toUpperCase())
