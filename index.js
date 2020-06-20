@@ -16,7 +16,7 @@ const grid = []
 
 // Set the width to be the number of all the letters in all words, scaled
 const width = Math.floor(
-  rawWords.reduce((sum, word) => sum + word.length, 0) * 0.25
+  rawWords.reduce((sum, word) => sum + word.length, 0) * 0.5
 )
 
 // Create helper functions for moving between 2d and 1d coordinates
@@ -143,7 +143,17 @@ while (words.length > 0) {
 // Function to write the grid to SVG
 const writeGridToSVG = () => {
   const tileSize = 10
-  let svg = `<svg viewbox="0 0 ${width * tileSize} ${width * tileSize}">`
+  let svg = `
+    <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewbox="0 0 ${width * tileSize} ${width * tileSize}"
+    >
+    <style>
+      .cell__text {
+        font-size: ${tileSize}px;
+        fill: white;
+      }
+    </style>`
 
   grid.forEach((letter, index) => {
     if (!letter) return
@@ -165,17 +175,7 @@ const writeGridToSVG = () => {
 
   svg += '</svg>'
 
-  const style = Object.entries({
-    'font-size': '8px',
-    fill: 'white',
-  })
-    .map(([key, value]) => `${key}:${value};`)
-    .join(' ')
-
-  fs.writeFileSync(
-    './index.html',
-    `<!DOCTYPE html><html><style>.cell__text{${style}}</style><body>${svg}</body></html>`
-  )
+  fs.writeFileSync('./output.svg', svg)
 }
 
 writeGridToSVG()
