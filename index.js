@@ -1,7 +1,16 @@
-const { shuffle, WORDS } = window
+const { shuffle, DEFAULT_WORDS = [] } = window
+
+const inputArea = document.getElementById('input-area')
+inputArea.defaultValue = DEFAULT_WORDS.join('\n')
+
+const getWordsFromInput = () =>
+  String(inputArea.value)
+    .split('\n')
+    .map(str => str.trim())
+    .filter(Boolean)
 
 let grid = []
-let words = [...WORDS]
+let words = [...getWordsFromInput()]
 
 // Set the width to be the number of all the letters in all words, scaled
 const width = Math.floor(words.reduce((sum, word) => sum + word.length, 0) / 3)
@@ -34,7 +43,7 @@ function reset() {
   grid = []
 
   // Convert all words to uppercase, like Scrabble tiles
-  words = [...WORDS].map(word => word.toUpperCase())
+  words = [...getWordsFromInput()].map(word => word.toUpperCase())
 
   // Remove the first word in the list, as the starting word in the middle
   const startingWord = words.shift()
@@ -216,6 +225,7 @@ function generate() {
   const run = () => {
     // we've exhausted our iterations, throw and escape
     if (iterationLimit <= 0) {
+      document.getElementById('board').innerText = 'Iteration limit reached'
       throw Error('Iteration limit reached')
     }
 
@@ -237,10 +247,6 @@ function generate() {
   run()
 }
 
-// Try a generation, and retry once to account for unfortunate shuffle seeding
-try {
-  generate()
-} catch (error) {
-  document.getElementById('board').innerText = error
-  console.error(error)
-}
+generate()
+
+document.getElementById('generate-button').onclick = generate
