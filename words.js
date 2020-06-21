@@ -1,4 +1,4 @@
-WORDS = [
+DEFAULT_WORDS = [
   'Mr Bousfield',
   'Jaimie',
   'Will',
