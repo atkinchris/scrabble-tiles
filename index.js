@@ -1,33 +1,16 @@
-const { shuffle, rawWords } = window
+const { shuffle, WORDS } = window
 
-// Convert all words to uppercase, like Scrabble tiles
-const words = rawWords.map(word => word.toUpperCase())
-
-// Remove the first word in the list, as the starting word in the middle
-const startingWord = words.shift()
-
-// Sort the rest of the words by length
-words.sort((a, b) => b.length - a.length)
-
-// Create an empty array to hold the grid
-const grid = []
+let grid = []
+let words = [...WORDS]
 
 // Set the width to be the number of all the letters in all words, scaled
-const width = Math.floor(
-  rawWords.reduce((sum, word) => sum + word.length, 0) / 3
-)
+const width = Math.floor(words.reduce((sum, word) => sum + word.length, 0) / 3)
 
 // Create helper functions for moving between 2d and 1d coordinates
 const getIndex = (x, y) => y * width + x
 const getCoords = index => ({
   x: index % width,
   y: Math.floor(index / width),
-})
-
-// Write the starting word to the center of the grid
-const midPoint = Math.floor((width - startingWord.length) / 2)
-startingWord.split('').forEach((letter, letterIndex) => {
-  grid[getIndex(midPoint + letterIndex, midPoint)] = letter
 })
 
 // Get all indexes of a letter in the grid
@@ -46,8 +29,28 @@ const findIntersections = word =>
     )
   }, [])
 
+function reset() {
+  // Create an empty array to hold the grid
+  grid = []
+
+  // Convert all words to uppercase, like Scrabble tiles
+  words = [...WORDS].map(word => word.toUpperCase())
+
+  // Remove the first word in the list, as the starting word in the middle
+  const startingWord = words.shift()
+
+  // Sort the rest of the words by length
+  words.sort((a, b) => b.length - a.length)
+
+  // Write the starting word to the center of the grid
+  const midPoint = Math.floor((width - startingWord.length) / 2)
+  startingWord.split('').forEach((letter, letterIndex) => {
+    grid[getIndex(midPoint + letterIndex, midPoint)] = letter
+  })
+}
+
 // Perform a single iteration for the next word in the words list
-const iterate = () => {
+function placeWord() {
   // Get the next word of the words list
   const word = words.shift()
 
@@ -134,19 +137,8 @@ const iterate = () => {
   words.push(word)
 }
 
-// Iterate until all the words are placed, or the limit is reached
-let iterationLimit = 1000 + words.length
-while (words.length > 0) {
-  iterate()
-  iterationLimit -= 1
-
-  if (iterationLimit <= 0) {
-    throw Error('Iteration limit reached')
-  }
-}
-
 // Function to write the grid to SVG
-const writeGridToSVG = () => {
+function writeGridToSVG() {
   const tileSize = 16
 
   const cells = grid.reduce((out, letter, index) => {
@@ -208,4 +200,27 @@ const writeGridToSVG = () => {
   document.getElementById('board').innerHTML = svg
 }
 
-writeGridToSVG()
+function generate() {
+  // Reset the grid and words
+  reset()
+
+  // Iterate until all the words are placed, or the limit is reached
+  let iterationLimit = 1000 + words.length
+  while (words.length > 0) {
+    placeWord()
+    iterationLimit -= 1
+
+    if (iterationLimit <= 0) {
+      throw Error('Iteration limit reached')
+    }
+  }
+
+  writeGridToSVG()
+}
+
+// Try a generation, and retry once to account for unfortunate shuffle seeding
+try {
+  generate()
+} catch (error) {
+  generate()
+}
