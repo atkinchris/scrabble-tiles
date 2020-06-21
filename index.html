@@ -41,15 +41,31 @@
         margin-top: 16px;
       }
 
-      #generate-button {
-        width: 100%;
+      .button-row {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+      }
+
+      .button-row button {
+        flex: 1;
+      }
+
+      .button-row button:first-child {
+        margin-right: 8px;
+      }
+
+      .button-row button:last-child {
+        margin-left: 8px;
       }
     </style>
   </head>
   <body>
     <div id="board"></div>
-    <button id="generate-button">Generate</button>
-    <button id="download-button">Download</button>
+    <div class="button-row">
+      <button id="generate-button">Generate</button>
+      <button id="download-button">Download</button>
+    </div>
     <textarea id="input-area"></textarea>
     <script src="knuth-shuffle.js"></script>
     <script src="words.js"></script>
