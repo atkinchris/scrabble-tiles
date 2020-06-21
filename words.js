@@ -1,5 +1,5 @@
-rawWords = [
-  'MrBousfield',
+WORDS = [
+  'Mr Bousfield',
   'Jaimie',
   'Will',
   'Billy',
@@ -21,12 +21,12 @@ rawWords = [
   'Isabella',
   'Jasmine',
   'Teegan',
-  'KaylahRose',
-  'LaceyAnne',
+  'Kaylah Rose',
+  'Lacey-Anne',
   'Ava',
   'Teegan',
   'Jazmine',
   'Sophia',
   'Maryam',
-  'MrsShandley',
+  'Mrs Shandley',
 ]
