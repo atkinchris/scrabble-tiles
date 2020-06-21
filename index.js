@@ -1,7 +1,9 @@
-const { shuffle, DEFAULT_WORDS = [] } = window
+const { shuffle, DEFAULT_WORDS = [], POINTS = {} } = window
 
 const inputArea = document.getElementById('input-area')
 inputArea.defaultValue = DEFAULT_WORDS.join('\n')
+
+const getPointsForLetter = letter => POINTS[letter] || ''
 
 const getWordsFromInput = () =>
   String(inputArea.value)
@@ -151,7 +153,7 @@ function placeWord() {
 
 // Function to write the grid to SVG
 function writeGridToSVG() {
-  const tileSize = 16
+  const tileSize = 32
 
   const cells = grid.reduce((out, letter, index) => {
     if (letter !== undefined) {
@@ -193,15 +195,48 @@ function writeGridToSVG() {
         width="${tileSize}"
         height="${tileSize}"
         >
-        <rect x="0" y="0" width="100%" height="100%" />
+        <rect
+          x="10%"
+          y="10%"
+          width="90%"
+          height="90%"
+          fill="#4f8a8b"
+          opacity="0.3"
+          rx="7%"
+          ry="7%"
+        />
+        <rect
+          x="5%"
+          y="5%"
+          width="90%"
+          height="90%"
+          fill="#ffcb74"
+          rx="7%"
+          ry="7%"
+        />
         <text
           x="50%"
           y="50%"
           dominant-baseline="middle"
           text-anchor="middle"
-          class="cell__text"
+          fill="07031a"
+          font-size="75%"
+          font-weight="bold"
+          font-family="sans-serif"
         >
           ${letter}
+        </text>
+        <text
+          x="70%"
+          y="70%"
+          dominant-baseline="middle"
+          text-anchor="middle"
+          fill="07031a"
+          font-size="40%"
+          font-weight="bold"
+          font-family="sans-serif"
+        >
+          ${getPointsForLetter(letter)}
         </text>
       </svg>
     `
@@ -225,7 +260,8 @@ function generate() {
   const run = () => {
     // we've exhausted our iterations, throw and escape
     if (iterationLimit <= 0) {
-      document.getElementById('board').innerText = 'Iteration limit reached'
+      document.getElementById('board').innerText =
+        'Iteration limit reached, please try again'
       throw Error('Iteration limit reached')
     }
 
