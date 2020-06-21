@@ -241,6 +241,6 @@ function generate() {
 try {
   generate()
 } catch (error) {
-  console.log(error)
-  generate()
+  document.getElementById('board').innerText = error
+  console.error(error)
 }
