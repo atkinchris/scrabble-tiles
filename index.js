@@ -54,6 +54,9 @@ function placeWord() {
   // Get the next word of the words list
   const word = words.shift()
 
+  // Log which word we're trying to place
+  console.log(`Attempting to place: "${word}"`)
+
   // Find all the intersections between each letter in the word and the existing words on the grid
   const intersections = findIntersections(word)
 
@@ -201,26 +204,43 @@ function writeGridToSVG() {
 }
 
 function generate() {
+  // Log that we're starting a generation
+  console.log('Starting generation...')
+
   // Reset the grid and words
   reset()
 
   // Iterate until all the words are placed, or the limit is reached
-  let iterationLimit = 1000 + words.length
-  while (words.length > 0) {
-    placeWord()
-    iterationLimit -= 1
+  let iterationLimit = words.length * 3
 
+  const run = () => {
+    // we've exhausted our iterations, throw and escape
     if (iterationLimit <= 0) {
       throw Error('Iteration limit reached')
     }
+
+    // Place the next word
+    placeWord()
+    // Write the board to the DOM
+    // We could do this once it's finished, but this gives a nice animated effect
+    writeGridToSVG()
+
+    // While there's still words to place, do another run
+    if (words.length > 0) {
+      requestAnimationFrame(run)
+      iterationLimit -= 1
+    } else {
+      console.log('Finished!')
+    }
   }
 
-  writeGridToSVG()
+  run()
 }
 
 // Try a generation, and retry once to account for unfortunate shuffle seeding
 try {
   generate()
 } catch (error) {
+  console.log(error)
   generate()
 }
