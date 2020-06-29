@@ -224,6 +224,7 @@ function writeGridToSVG() {
             font-size="75%"
             font-weight="bold"
             font-family="sans-serif"
+            class="letter"
           >
             ${letter}
           </text>
@@ -232,10 +233,11 @@ function writeGridToSVG() {
             y="70%"
             dominant-baseline="middle"
             text-anchor="middle"
-            fill="07031a"
+            fill="07031b"
             font-size="40%"
             font-weight="bold"
             font-family="sans-serif"
+            class="points"
           >
             ${getPointsForLetter(letter)}
           </text>
