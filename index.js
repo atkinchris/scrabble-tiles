@@ -3,6 +3,8 @@ const { shuffle, DEFAULT_WORDS = [], POINTS = {} } = window
 const inputArea = document.getElementById('input-area')
 inputArea.defaultValue = DEFAULT_WORDS.join('\n')
 
+const preserveOrderCountInput = document.getElementById('preserve-order-count')
+
 const getPointsForLetter = letter => POINTS[letter] || ''
 
 const getWordsFromInput = () =>
@@ -50,8 +52,14 @@ function reset() {
   // Remove the first word in the list, as the starting word in the middle
   const startingWord = words.shift()
 
+  const preserveOrderCount = parseInt(preserveOrderCountInput.value || 0, 10)
+  console.log(preserveOrderCount)
+  const nextWords = words.splice(0, preserveOrderCount)
+
   // Sort the rest of the words by length
   words.sort((a, b) => b.length - a.length)
+
+  words.splice(0, 0, ...nextWords)
 
   // Write the starting word to the center of the grid
   const midPoint = Math.floor((width - startingWord.length) / 2)
