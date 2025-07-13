@@ -12,6 +12,7 @@ const getWordsFromInput = () =>
     .split('\n')
     .map(str => str.trim())
     .filter(Boolean)
+    .map(word => word.replace(/\s+/g, '')) // Remove spaces from words like "Mr Thompson"
 
 let grid = []
 let words = [...getWordsFromInput()]
@@ -21,8 +22,14 @@ let height = 0
 // Calculate grid dimensions based on total letter count
 const calculateGridSize = wordList => {
   const totalLetters = wordList.reduce((sum, word) => sum + word.length, 0)
-  const size = Math.ceil(Math.sqrt(totalLetters * 2)) // More generous sizing
-  return Math.max(size, 10) // Minimum size of 10x10
+  const longestWord = Math.max(...wordList.map(word => word.length))
+
+  // Use a more generous formula: ensure we have enough space
+  // Base size on total letters but ensure minimum space for crossing words
+  const baseSize = Math.ceil(Math.sqrt(totalLetters * 3)) // More generous
+  const minSize = longestWord + 10 // Ensure longest word fits with buffer
+
+  return Math.max(baseSize, minSize, 15) // Minimum size of 15x15
 }
 
 // Create helper functions for moving between 2d and 1d coordinates
@@ -102,11 +109,13 @@ function placeWord() {
   // Get the next word of the words list
   const word = words.shift()
 
-  // Log which word we're trying to place
-  console.log(`Attempting to place: "${word}"`)
-
   // Find all the intersections between each letter in the word and the existing words on the grid
   const intersections = findIntersections(word)
+
+  if (intersections.length === 0) {
+    words.push(word)
+    return false
+  }
 
   // Shuffle the intersections for variety
   shuffle(intersections)
@@ -136,14 +145,22 @@ function tryPlaceWordVertical(word, intersection) {
     const gridElement = getGridValue(x, y)
 
     // Check validity
+    const outOfBounds = !isInBounds(x, y)
+    const letterConflict = gridElement !== undefined && gridElement !== letter
+    const topBlocked = i === 0 && getGridValue(x, y - 1) !== undefined
+    const bottomBlocked =
+      i === word.length - 1 && getGridValue(x, y + 1) !== undefined
+    const sideBlocked =
+      y !== intersection.y &&
+      (getGridValue(x - 1, y) !== undefined ||
+        getGridValue(x + 1, y) !== undefined)
+
     const isInvalid =
-      !isInBounds(x, y) ||
-      (gridElement !== undefined && gridElement !== letter) ||
-      (i === 0 && getGridValue(x, y - 1) !== undefined) ||
-      (i === word.length - 1 && getGridValue(x, y + 1) !== undefined) ||
-      (y !== intersection.y &&
-        (getGridValue(x - 1, y) !== undefined ||
-          getGridValue(x + 1, y) !== undefined))
+      outOfBounds ||
+      letterConflict ||
+      topBlocked ||
+      bottomBlocked ||
+      sideBlocked
 
     return { x, y, letter, isValid: !isInvalid }
   })
@@ -164,14 +181,22 @@ function tryPlaceWordHorizontal(word, intersection) {
     const gridElement = getGridValue(x, y)
 
     // Check validity
+    const outOfBounds = !isInBounds(x, y)
+    const letterConflict = gridElement !== undefined && gridElement !== letter
+    const leftBlocked = i === 0 && getGridValue(x - 1, y) !== undefined
+    const rightBlocked =
+      i === word.length - 1 && getGridValue(x + 1, y) !== undefined
+    const sideBlocked =
+      x !== intersection.x &&
+      (getGridValue(x, y - 1) !== undefined ||
+        getGridValue(x, y + 1) !== undefined)
+
     const isInvalid =
-      !isInBounds(x, y) ||
-      (gridElement !== undefined && gridElement !== letter) ||
-      (i === 0 && getGridValue(x - 1, y) !== undefined) ||
-      (i === word.length - 1 && getGridValue(x + 1, y) !== undefined) ||
-      (x !== intersection.x &&
-        (getGridValue(x, y - 1) !== undefined ||
-          getGridValue(x, y + 1) !== undefined))
+      outOfBounds ||
+      letterConflict ||
+      leftBlocked ||
+      rightBlocked ||
+      sideBlocked
 
     return { x, y, letter, isValid: !isInvalid }
   })
@@ -296,8 +321,6 @@ function writeGridToSVG() {
 }
 
 function generate() {
-  console.log('Starting generation...')
-
   try {
     // Reset the grid and words
     reset()
@@ -306,42 +329,38 @@ function generate() {
     const boardElement = document.getElementById('board')
 
     // Iterate until all words are placed or limit is reached
-    let iterationLimit = words.length * 5 // Increased limit
-    let attemptedWords = new Set() // Track words that have been attempted
-    let lastWordCount = words.length
+    let iterationLimit = words.length * 10
+    let consecutiveFailures = 0
+    const maxConsecutiveFailures = words.length * 2
 
     const run = () => {
       // Check if we've exhausted iterations
       if (iterationLimit <= 0) {
         boardElement.innerHTML =
           '<p style="color: red; text-align: center;">Unable to place all words. Try with fewer words or shorter words.</p>'
-        console.warn('Iteration limit reached. Remaining words:', words)
         return
       }
 
-      // Check if we're stuck (no progress for a full cycle)
-      if (
-        words.length === lastWordCount &&
-        attemptedWords.size >= words.length
-      ) {
-        boardElement.innerHTML =
-          '<p style="color: orange; text-align: center;">Some words could not be placed. Try regenerating or adjusting the word list.</p>'
-        console.warn('Generation stuck. Remaining words:', words)
+      // Check if we're stuck (too many consecutive failures)
+      if (consecutiveFailures >= maxConsecutiveFailures) {
+        if (grid.some(cell => cell !== undefined)) {
+          // We placed at least some words, show what we have
+          writeGridToSVG()
+        } else {
+          boardElement.innerHTML =
+            '<p style="color: orange; text-align: center;">No words could be placed. Try simpler words or check for common letters.</p>'
+        }
         return
-      }
-
-      if (words.length !== lastWordCount) {
-        lastWordCount = words.length
-        attemptedWords.clear()
       }
 
       // Try to place a word
       if (words.length > 0) {
-        const currentWord = words[0]
         const placed = placeWord()
 
-        if (!placed) {
-          attemptedWords.add(currentWord)
+        if (placed) {
+          consecutiveFailures = 0 // Reset failure count on success
+        } else {
+          consecutiveFailures++
         }
 
         // Write the board to the DOM for animation effect
@@ -351,8 +370,6 @@ function generate() {
         if (words.length > 0) {
           requestAnimationFrame(run)
           iterationLimit -= 1
-        } else {
-          console.log('Finished successfully!')
         }
       }
     }
@@ -380,6 +397,22 @@ function initializeInterface() {
 
   // Set up event listeners
   document.getElementById('generate-button').onclick = generate
+
+  // Sample word list buttons
+  document.getElementById('sample-simple').onclick = () => {
+    inputArea.value = window.SAMPLE_LISTS.simpleWords.join('\n')
+    generate()
+  }
+
+  document.getElementById('sample-names').onclick = () => {
+    inputArea.value = window.SAMPLE_LISTS.commonNames.join('\n')
+    generate()
+  }
+
+  document.getElementById('sample-family').onclick = () => {
+    inputArea.value = window.SAMPLE_LISTS.familyWords.join('\n')
+    generate()
+  }
 
   // Initial board display
   const boardElement = document.getElementById('board')

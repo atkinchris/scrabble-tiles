@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Test Scrabble Generator</title>
+  </head>
+  <body>
+    <h1>Debug Test</h1>
+    <button onclick="testBasic()">Test Basic Words</button>
+    <button onclick="testDefault()">Test Default Words</button>
+    <div id="debug"></div>
+
+    <script src="knuth-shuffle.js"></script>
+    <script src="words.js"></script>
+    <script src="points.js"></script>
+
+    <script>
+      function testBasic() {
+        console.clear()
+        console.log('Testing with simple words: CAT, DOG, BAT')
+
+        // Test with very simple words
+        const testWords = ['CAT', 'DOG', 'BAT']
+        const debug = document.getElementById('debug')
+        debug.innerHTML = '<p>Check console for detailed logs</p>'
+
+        // Test findIntersections function manually
+        const grid = new Array(10 * 10).fill(undefined)
+        const width = 10,
+          height = 10
+
+        // Place CAT in center
+        grid[45] = 'C' // position (5,4)
+        grid[46] = 'A' // position (6,4)
+        grid[47] = 'T' // position (7,4)
+
+        console.log('Grid after placing CAT:', grid)
+
+        // Test finding intersections for DOG
+        const dogIntersections = findIntersectionsManual('DOG', grid, width)
+        console.log('Intersections for DOG:', dogIntersections)
+      }
+
+      function testDefault() {
+        console.clear()
+        console.log('Testing with default words')
+        // Use the actual app logic
+      }
+
+      function findIntersectionsManual(word, testGrid, testWidth) {
+        const getCoords = index => ({
+          x: index % testWidth,
+          y: Math.floor(index / testWidth),
+        })
+
+        const getAllOccurances = letter =>
+          testGrid.reduce((indexes, gridLetter, gridIndex) => {
+            if (gridLetter === letter) indexes.push(gridIndex)
+            return indexes
+          }, [])
+
+        return word.split('').reduce((out, letter, letterIndex) => {
+          const indexes = getAllOccurances(letter)
+          return out.concat(
+            indexes.map(gridIndex => ({ ...getCoords(gridIndex), letterIndex }))
+          )
+        }, [])
+      }
+    </script>
+  </body>
+</html>
