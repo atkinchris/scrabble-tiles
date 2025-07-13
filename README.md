@@ -6,6 +6,7 @@ A self-contained web application that generates a Scrabble-style crossword board
 
 - **Interactive word placement**: Automatically arranges words in a crossword-style layout
 - **Scrabble-style tiles**: Each letter displays its Scrabble point value
+- **Blank tiles for spaces**: Words with spaces (like "Mr Smith") show blank tiles for spaces
 - **Customizable word order**: Option to preserve the order of certain words
 - **SVG download**: Export your board as a scalable vector graphic
 - **Responsive design**: Works on desktop and mobile devices
@@ -15,9 +16,12 @@ A self-contained web application that generates a Scrabble-style crossword board
 
 1. Open `index.html` in your web browser
 2. Enter words or names in the text area (one per line)
+   - Use spaces in names like "Mr Smith" or "New York" for blank tiles
 3. Optionally set how many words after the first should remain in order
 4. Click "Generate Board" to create your Scrabble tiles layout
 5. Click "Download SVG" to save your board
+
+**Pro Tip**: Use the sample buttons to try different word types, including "Try Words with Spaces" to see blank tiles in action!
 
 ## 🛠️ How It Works
 

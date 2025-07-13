@@ -29,4 +29,14 @@ window.SAMPLE_LISTS = {
     'MAKE',
     'MEAL',
   ],
+
+  withSpaces: [
+    'TEAM WORK',
+    'HOME RUN',
+    'NEW YEAR',
+    'TIME OUT',
+    'WORK TEAM',
+    'RUN HOME',
+    'YEAR END',
+  ],
 }

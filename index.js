@@ -5,14 +5,18 @@ inputArea.value = DEFAULT_WORDS.join('\n')
 
 const preserveOrderCountInput = document.getElementById('preserve-order-count')
 
-const getPointsForLetter = letter => POINTS[letter] || ''
+const getPointsForLetter = letter => {
+  if (letter === ' ') return '' // Spaces are blank tiles with no points
+  return POINTS[letter] || ''
+}
 
 const getWordsFromInput = () =>
   String(inputArea.value)
     .split('\n')
     .map(str => str.trim())
     .filter(Boolean)
-    .map(word => word.replace(/\s+/g, '')) // Remove spaces from words like "Mr Thompson"
+    // Convert spaces to a special character for processing, then back to spaces
+    .map(word => word.replace(/\s+/g, ' ')) // Normalize multiple spaces to single space
 
 let grid = []
 let words = [...getWordsFromInput()]
@@ -255,6 +259,12 @@ function writeGridToSVG() {
     </style>`
 
   cells.forEach(({ x, y, letter }) => {
+    const isBlankTile = letter === ' '
+    const tileColor = isBlankTile ? '#f0f0f0' : '#ffcb74'
+    const shadowColor = isBlankTile ? '#d0d0d0' : '#4f8a8b'
+    const textColor = isBlankTile ? '#999' : '#07031a'
+    const displayLetter = isBlankTile ? '' : letter
+
     svg += `
       <svg
         x="${x * tileSize}"
@@ -268,7 +278,7 @@ function writeGridToSVG() {
             y="10%"
             width="90%"
             height="90%"
-            fill="#4f8a8b"
+            fill="${shadowColor}"
             opacity="0.3"
             rx="7%"
             ry="7%"
@@ -278,7 +288,7 @@ function writeGridToSVG() {
             y="5%"
             width="90%"
             height="90%"
-            fill="#ffcb74"
+            fill="${tileColor}"
             rx="7%"
             ry="7%"
           />
@@ -287,20 +297,20 @@ function writeGridToSVG() {
             y="50%"
             dominant-baseline="middle"
             text-anchor="middle"
-            fill="#07031a"
+            fill="${textColor}"
             font-size="75%"
             font-weight="bold"
             font-family="sans-serif"
             class="letter"
           >
-            ${letter}
+            ${displayLetter}
           </text>
           <text
             x="70%"
             y="70%"
             dominant-baseline="middle"
             text-anchor="middle"
-            fill="#07031a"
+            fill="${textColor}"
             font-size="40%"
             font-weight="bold"
             font-family="sans-serif"
@@ -411,6 +421,11 @@ function initializeInterface() {
 
   document.getElementById('sample-family').onclick = () => {
     inputArea.value = window.SAMPLE_LISTS.familyWords.join('\n')
+    generate()
+  }
+
+  document.getElementById('sample-spaces').onclick = () => {
+    inputArea.value = window.SAMPLE_LISTS.withSpaces.join('\n')
     generate()
   }
 
