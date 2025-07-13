@@ -1,4 +1,4 @@
-DEFAULT_WORDS = [
+window.DEFAULT_WORDS = [
   'Mr Thompson',
   'Liam',
   'Olivia',
